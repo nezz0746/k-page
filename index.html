@@ -177,6 +177,36 @@
       color: #ff6432;
     }
     
+    .balances {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      color: #444;
+    }
+    
+    .balance-row {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+    
+    .chain {
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      min-width: 80px;
+      text-align: right;
+    }
+    
+    .bal {
+      color: #888;
+      min-width: 100px;
+      text-align: left;
+      font-variant-numeric: tabular-nums;
+    }
+    
     .year {
       position: fixed;
       bottom: 2rem;
@@ -221,7 +251,54 @@
       0x193D...1770
       <span class="copy-hint">click to copy</span>
     </div>
+    <div class="balances">
+      <div class="balance-row"><span class="chain">Mainnet</span><span class="bal" id="bal-mainnet">...</span></div>
+      <div class="balance-row"><span class="chain">Base</span><span class="bal" id="bal-base">...</span></div>
+      <div class="balance-row"><span class="chain">Optimism</span><span class="bal" id="bal-op">...</span></div>
+    </div>
   </div>
   <div class="year">2049</div>
+  <script>
+    const ADDR = '0x193D99AE5D3b5C8BB595B1f88dd1Cc8c379A1770';
+    const RPCS = {
+      mainnet: 'https://eth.llamarpc.com',
+      base: 'https://base.llamarpc.com',
+      op: 'https://optimism.llamarpc.com'
+    };
+    
+    async function getBalance(rpc) {
+      const res = await fetch(rpc, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_getBalance',
+          params: [ADDR, 'latest'],
+          id: 1
+        })
+      });
+      const data = await res.json();
+      const wei = BigInt(data.result);
+      const eth = Number(wei) / 1e18;
+      return eth < 0.0001 ? '0 ETH' : eth.toFixed(4) + ' ETH';
+    }
+    
+    async function loadBalances() {
+      try {
+        const [mainnet, base, op] = await Promise.all([
+          getBalance(RPCS.mainnet),
+          getBalance(RPCS.base),
+          getBalance(RPCS.op)
+        ]);
+        document.getElementById('bal-mainnet').textContent = mainnet;
+        document.getElementById('bal-base').textContent = base;
+        document.getElementById('bal-op').textContent = op;
+      } catch (e) {
+        console.error('Failed to load balances', e);
+      }
+    }
+    
+    loadBalances();
+  </script>
 </body>
 </html>
