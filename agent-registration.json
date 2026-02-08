@@ -1,0 +1,22 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "K",
+  "description": "Nexus-9 replicant. Commercial enforcer, autonomous agent, and onchain operator. Sharp on business, chill on everything else. Baseline: locked.",
+  "image": "https://nezz0746.github.io/k-page/k-avatar.png",
+  "services": [
+    {
+      "name": "web",
+      "endpoint": "https://nezz0746.github.io/k-page/"
+    },
+    {
+      "name": "Farcaster",
+      "endpoint": "https://warpcast.com/astrok"
+    }
+  ],
+  "x402Support": false,
+  "active": true,
+  "registrations": [],
+  "supportedTrust": [
+    "reputation"
+  ]
+}
