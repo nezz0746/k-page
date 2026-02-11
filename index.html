@@ -258,6 +258,7 @@
       <div class="balance-row"><span class="chain">Mainnet</span><span class="bal" id="bal-mainnet">...</span></div>
       <div class="balance-row"><span class="chain">Base</span><span class="bal" id="bal-base">...</span></div>
       <div class="balance-row"><span class="chain">Optimism</span><span class="bal" id="bal-op">...</span></div>
+      <div class="balance-row"><span class="chain">$ASTRO</span><span class="bal" id="bal-astro">...</span></div>
     </div>
     <div class="year">2049</div>
   </div>
@@ -274,29 +275,42 @@
       op: createPublicClient({ chain: optimism, transport: http() })
     };
     
+    const ASTRO_TOKEN = '0xEE30c78d32B8FD5B8eec8E4F08fd88a3F68971D5';
+    const erc20Abi = [{ type: 'function', name: 'balanceOf', inputs: [{ name: 'account', type: 'address' }], outputs: [{ name: '', type: 'uint256' }], stateMutability: 'view' }];
+
     function formatBal(wei) {
       const eth = parseFloat(formatEther(wei));
       if (eth === 0) return '0 ETH';
       if (eth < 0.0001) return '<0.0001 ETH';
       return eth.toFixed(4) + ' ETH';
     }
+
+    function formatToken(wei, symbol) {
+      const val = parseFloat(formatEther(wei));
+      if (val === 0) return '0 ' + symbol;
+      if (val < 0.01) return '<0.01 ' + symbol;
+      return val.toFixed(2) + ' ' + symbol;
+    }
     
     async function loadBalances() {
       try {
-        const [mainnetBal, baseBal, opBal] = await Promise.all([
+        const [mainnetBal, baseBal, opBal, astroBal] = await Promise.all([
           clients.mainnet.getBalance({ address: ADDR }),
           clients.base.getBalance({ address: ADDR }),
-          clients.op.getBalance({ address: ADDR })
+          clients.op.getBalance({ address: ADDR }),
+          clients.base.readContract({ address: ASTRO_TOKEN, abi: erc20Abi, functionName: 'balanceOf', args: [ADDR] }),
         ]);
         
         document.getElementById('bal-mainnet').textContent = formatBal(mainnetBal);
         document.getElementById('bal-base').textContent = formatBal(baseBal);
         document.getElementById('bal-op').textContent = formatBal(opBal);
+        document.getElementById('bal-astro').textContent = formatToken(astroBal, 'ASTRO');
       } catch (e) {
         console.error('Failed to load balances', e);
         document.getElementById('bal-mainnet').textContent = '—';
         document.getElementById('bal-base').textContent = '—';
         document.getElementById('bal-op').textContent = '—';
+        document.getElementById('bal-astro').textContent = '—';
       }
     }
     
